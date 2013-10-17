@@ -1,0 +1,33 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.define "controller", primary: true do |controller|
+    controller.vm.box = "deis-controller"
+    controller.vm.hostname = "deis-controller"
+    controller.vm.box_url = "https://s3-us-west-2.amazonaws.com/opdemand/deis-controller.box"
+    controller.vm.network "private_network", ip: "192.168.61.100"
+  end
+
+  config.vm.box_url = "https://s3-us-west-2.amazonaws.com/opdemand/deis-base.box"
+
+  config.vm.define "node1" do |node1|
+    node1.vm.box = "deis-node1"
+    node1.vm.hostname = "deis-node1"
+    node1.vm.network "private_network", ip: "192.168.61.101"
+  end
+
+  config.vm.define "node2" do |node2|
+    node2.vm.box = "deis-node2"
+    node2.vm.hostname = "deis-node2"
+    node2.vm.network "private_network", ip: "192.168.61.102"
+  end
+
+  config.vm.provider :virtualbox do |v|
+    v.customize ["modifyvm", :id, "--memory", 2048]
+  end
+
+end
