@@ -5,12 +5,15 @@ Django settings for the Deis project.
 from __future__ import unicode_literals
 import os.path
 import tempfile
+import sys
 
 
 PROJECT_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
+
+TESTING = 'test' in sys.argv
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -273,7 +276,8 @@ DEIS_LOG_DIR = os.path.abspath(os.path.join(__file__, '..', '..', 'logs'))
 LOG_LINES = 1000
 
 # the config management module to use in api.models
-CM_MODULE = 'cm.mock'
+# CM functions are run as celery tasks
+CM_MODULE = 'cm.chef' if not TESTING else 'cm.mock'
 TEMPDIR = tempfile.mkdtemp(prefix='deis')
 
 # default providers, typically overriden in local_settings to include ec2, etc.

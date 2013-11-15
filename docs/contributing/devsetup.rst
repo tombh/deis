@@ -103,6 +103,37 @@ Specifically, when you change local code, you must run
 ``make flake8 && make coverage``, then check the HTML report to see
 that test coverage has improved as a result of your changes and new unit tests.
 
+Before running the tests you may want to create a ``deis/local_settings.py`` to override the default
+settings in Django's ``deis/settings.py``. Something like this for example:
+
+.. code-block:: console
+	"""
+	Local (not in version control) overrides to settings.py.
+	"""
+
+	DEBUG = TEMPLATE_DEBUG = True
+
+	MANAGERS = ADMINS = (
+	    ('My User', 'myuser@example.com'),
+	)
+
+	DATABASES = {
+	    'default': {
+	        'ENGINE': 'django.db.backends.sqlite3',
+	        'NAME': 'deis.s3db',
+	        'USER': '',
+	        'PASSWORD': '',
+	        'HOST': '',
+	        'PORT': '',
+	    }
+	}
+
+	SECRET_KEY = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+
+This example uses an Sqlite DB, which is fine for testing. Or if you prefer you can use the default
+Postgres DB. In which case you need to make sure your user has permissions to create and drop the 
+test DB, for that you can use ``sudo su postgres -c"psql -c'ALTER USER your_username CREATEDB;'"``
+
 .. code-block:: console
 
 	$ make flake8
