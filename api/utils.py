@@ -70,7 +70,7 @@ def generate_app_name():
 def generate_service_name():
     while True:
         name = ''.join(random.sample(string.letters*2, 8))
-        if not models.Service.objects.filter(name=name).exists():
+        if not models.Addon.objects.filter(name=name).exists():
             return name
 
 

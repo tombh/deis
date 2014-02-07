@@ -686,52 +686,52 @@ class AppContainerViewSet(OwnerViewSet):
         return obj
 
 
-class AppServiceViewSet(OwnerViewSet):
+class AppAddonViewSet(OwnerViewSet):
     """
     API endpoint that allows services to be viewed or edited.
     """
 
-    model = models.Service
-    serializer_class = serializers.ServiceSerializer
+    model = models.Addon
+    serializer_class = serializers.AddonSerializer
 
     def get_object(self, *args, **kwargs):
         app = get_object_or_404(models.App, id=self.kwargs['id'])
         # TODO #231: it seems wrong that I have to use app.uuid when none of the other
         # viewsets have to.
         return get_object_or_404(
-            models.Service, app=app.uuid, provider__type=self.kwargs['type'])
+            models.Addon, app=app.uuid, provider__type=self.kwargs['type'])
 
     def pre_save(self, obj):
         if not obj.provider.enabled:
             # TODO #231: the message doesn't get passed to the CLI
             raise Http404("Provider not enabled")
-        super(AppServiceViewSet, self).pre_save(obj)
+        super(AppAddonViewSet, self).pre_save(obj)
         obj.build()
 
     def post_delete(self, obj):
         obj.destroy()
 
     def create(self, request, *args, **kwargs):
-        provider = get_object_or_404(models.ServiceProvider, type=self.kwargs['type'])
+        provider = get_object_or_404(models.Service, type=self.kwargs['type'])
         app = get_object_or_404(models.App, id=self.kwargs['id'])
         request._data = request.DATA.copy()
         request.DATA['provider'] = provider.id
         request.DATA['app'] = app
-        return super(AppServiceViewSet, self).create(request, *args, **kwargs)
+        return super(AppAddonViewSet, self).create(request, *args, **kwargs)
 
 
-class ServiceProviderViewSet(OwnerViewSet):
+class ServiceViewSet(OwnerViewSet):
     """
     API endpoint that allows providers to be created, viewed and edited.
     """
 
-    model = models.ServiceProvider
+    model = models.Service
     permission_classes = (permissions.IsAuthenticated, IsAdminOrSafeMethod)
-    serializer_class = serializers.ServiceProviderSerializer
+    serializer_class = serializers.ServiceSerializer
 
     def get_object(self, *args, **kwargs):
         return get_object_or_404(
-            models.ServiceProvider, owner=self.request.user, type=self.kwargs['type'])
+            models.Service, owner=self.request.user, type=self.kwargs['type'])
 
     def _get_details_from_provider_module(self, request):
         """
@@ -777,7 +777,7 @@ class ServiceProviderViewSet(OwnerViewSet):
             return Response("Provider not available.", status=status.HTTP_404_NOT_FOUND)
         request = self._get_details_from_provider_module(request)
         request.DATA['type'] = kwargs['type']  # TODO #231: it errors without this line :(
-        if models.ServiceProvider.objects.filter(owner=request.user, type=kwargs['type']):
-            return super(ServiceProviderViewSet, self).update(request, **kwargs)
+        if models.Service.objects.filter(owner=request.user, type=kwargs['type']):
+            return super(ServiceViewSet, self).update(request, **kwargs)
         else:
-            return super(ServiceProviderViewSet, self).create(request, **kwargs)
+            return super(ServiceViewSet, self).create(request, **kwargs)

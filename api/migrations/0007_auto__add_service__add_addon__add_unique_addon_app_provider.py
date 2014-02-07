@@ -11,42 +11,52 @@ class Migration(SchemaMigration):
         # Adding model 'Service'
         db.create_table(u'api_service', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('app', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['api.App'])),
-            ('owner', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-            ('name', self.gf('django.db.models.fields.CharField')(unique=True, max_length=50)),
-            ('provider', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['api.ServiceProvider'])),
-            ('plan', self.gf('django.db.models.fields.SlugField')(max_length=16)),
-            ('uri', self.gf('django.db.models.fields.CharField')(max_length=300)),
-        ))
-        db.send_create_signal(u'api', ['Service'])
-
-        # Adding unique constraint on 'Service', fields ['app', 'provider']
-        db.create_unique(u'api_service', ['app_id', 'provider_id'])
-
-        # Adding model 'ServiceProvider'
-        db.create_table(u'api_serviceprovider', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('owner', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
             ('type', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=16)),
             ('enabled', self.gf('django.db.models.fields.BooleanField')()),
             ('dashboard', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('docs', self.gf('django.db.models.fields.CharField')(max_length=100)),
         ))
-        db.send_create_signal(u'api', ['ServiceProvider'])
+        db.send_create_signal(u'api', ['Service'])
+
+        # Adding model 'Addon'
+        db.create_table(u'api_addon', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('app', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['api.App'])),
+            ('owner', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
+            ('name', self.gf('django.db.models.fields.CharField')(unique=True, max_length=50)),
+            ('provider', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['api.Service'])),
+            ('plan', self.gf('django.db.models.fields.SlugField')(max_length=16)),
+            ('uri', self.gf('django.db.models.fields.CharField')(max_length=300)),
+        ))
+        db.send_create_signal(u'api', ['Addon'])
+
+        # Adding unique constraint on 'Addon', fields ['app', 'provider']
+        db.create_unique(u'api_addon', ['app_id', 'provider_id'])
 
 
     def backwards(self, orm):
-        # Removing unique constraint on 'Service', fields ['app', 'provider']
-        db.delete_unique(u'api_service', ['app_id', 'provider_id'])
+        # Removing unique constraint on 'Addon', fields ['app', 'provider']
+        db.delete_unique(u'api_addon', ['app_id', 'provider_id'])
 
         # Deleting model 'Service'
         db.delete_table(u'api_service')
 
-        # Deleting model 'ServiceProvider'
-        db.delete_table(u'api_serviceprovider')
+        # Deleting model 'Addon'
+        db.delete_table(u'api_addon')
 
 
     models = {
+        u'api.addon': {
+            'Meta': {'unique_together': "((u'app', u'provider'),)", 'object_name': 'Addon'},
+            'app': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['api.App']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '50'}),
+            'owner': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"}),
+            'plan': ('django.db.models.fields.SlugField', [], {'max_length': '16'}),
+            'provider': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['api.Service']"}),
+            'uri': ('django.db.models.fields.CharField', [], {'max_length': '300'})
+        },
         u'api.app': {
             'Meta': {'object_name': 'App'},
             'containers': ('json_field.fields.JSONField', [], {'default': "u'{}'", 'blank': 'True'}),
@@ -195,17 +205,7 @@ class Migration(SchemaMigration):
             'version': ('django.db.models.fields.PositiveIntegerField', [], {})
         },
         u'api.service': {
-            'Meta': {'unique_together': "((u'app', u'provider'),)", 'object_name': 'Service'},
-            'app': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['api.App']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '50'}),
-            'owner': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"}),
-            'plan': ('django.db.models.fields.SlugField', [], {'max_length': '16'}),
-            'provider': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['api.ServiceProvider']"}),
-            'uri': ('django.db.models.fields.CharField', [], {'max_length': '300'})
-        },
-        u'api.serviceprovider': {
-            'Meta': {'object_name': 'ServiceProvider'},
+            'Meta': {'object_name': 'Service'},
             'dashboard': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'docs': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'enabled': ('django.db.models.fields.BooleanField', [], {}),

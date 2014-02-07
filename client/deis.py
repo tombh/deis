@@ -1752,7 +1752,7 @@ class DeisClient(object):
 
         Usage: deis services:list
         """
-        response = self._dispatch('get', "/api/service_providers")
+        response = self._dispatch('get', "/api/services")
         if response.status_code == requests.codes.ok:  # @UndefinedVariable
             data = response.json()
             if len(data) == 0:
@@ -1780,7 +1780,7 @@ class DeisClient(object):
             progress.start()
             before = time.time()
             response = self._dispatch(
-                'put', "/api/service_providers/{}".format(service), json.dumps(body))
+                'put', "/api/services/{}".format(service), json.dumps(body))
         finally:
             progress.cancel()
             progress.join()
@@ -1806,7 +1806,7 @@ class DeisClient(object):
             progress.start()
             before = time.time()
             response = self._dispatch(
-                'put', "/api/service_providers/{}".format(service), json.dumps(body))
+                'put', "/api/services/{}".format(service), json.dumps(body))
         finally:
             progress.cancel()
             progress.join()
@@ -2147,7 +2147,7 @@ class DeisClient(object):
 
         Usage: deis addons:list
         """
-        response = self._dispatch('get', "/api/service_providers")
+        response = self._dispatch('get', "/api/services")
         if response.status_code == requests.codes.ok:  # @UndefinedVariable
             data = response.json()
             if len(data) == 0:

@@ -22,5 +22,5 @@ class BuildNodeError(APIException):
         self.detail = detail
 
 
-class ServiceProviderError(Exception):
+class ServiceError(Exception):
     pass

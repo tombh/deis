@@ -25,7 +25,7 @@ from json_field.fields import JSONField  # @UnusedImport
 from api import fields, tasks
 from provider import import_provider_module
 from utils import dict_diff
-from .exceptions import ServiceProviderError
+from .exceptions import ServiceError
 
 logger = logging.getLogger(__name__)
 
@@ -871,7 +871,7 @@ class Release(UuidAuditedModel):
         super(Release, self).save(*args, **kwargs)
 
 
-class ServiceProvider(models.Model):
+class Service(models.Model):
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
     type = models.SlugField(max_length=16, unique=True)
@@ -883,12 +883,12 @@ class ServiceProvider(models.Model):
         return self.type
 
 
-class Service(models.Model):
+class Addon(models.Model):
 
     app = models.ForeignKey('App')
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
     name = models.CharField(max_length=50, unique=True)
-    provider = models.ForeignKey('ServiceProvider')
+    provider = models.ForeignKey('Service')
     plan = models.SlugField(max_length=16)
     uri = models.CharField(max_length=300)
 
@@ -900,18 +900,18 @@ class Service(models.Model):
 
     def build(self):
         if not self.provider.enabled:
-            raise ServiceProviderError('cannot provision; provider is disabled')
+            raise ServiceError('cannot provision; provider is disabled')
         self.uri = tasks.build_service.delay(self).wait()
 
     def destroy(self):
         if not self.provider.enabled:
-            raise ServiceProviderError('cannot deprovision; provider is disabled')
+            raise ServiceError('cannot deprovision; provider is disabled')
         self.uri = None
         return tasks.destroy_service.delay(self).wait()
 
     def update(self, new_service):
         if not self.provider.enabled:
-            raise ServiceProviderError('cannot update; provider is disabled')
+            raise ServiceError('cannot update; provider is disabled')
         self.uri = tasks.update_service.delay(self, new_service)
 
     def flat(self):

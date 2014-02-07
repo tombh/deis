@@ -12,7 +12,7 @@ from django.test.utils import override_settings
 import json
 
 
-class ServiceProvidersTest(TestCase):
+class ServicesTest(TestCase):
 
     """Tests creation of services"""
 
@@ -21,44 +21,44 @@ class ServiceProvidersTest(TestCase):
     def setUp(self):
         self.assertTrue(self.client.login(username='autotest', password='password'))
 
-    def test_service_providers(self):
+    def test_services(self):
         """
         Test that a user can list and enable services
         """
         # Listing providers
-        url = '/api/service_providers'
+        url = '/api/services'
         response = self.client.get(url, content_type='application/json')
         self.assertEqual(response.status_code, 200)
         mock_data = {u'enabled': False, 'description': u'Mock service for testing purposes'}
         self.assertEqual(response.data['mock'], mock_data)
 
         # Enabling a provider
-        url = '/api/service_providers/mock'
+        url = '/api/services/mock'
         body = {'enabled': True}
         response = self.client.put(url, json.dumps(body), content_type='application/json')
         self.assertEqual(response.status_code, 201)
-        url = '/api/service_providers'
+        url = '/api/services'
         response = self.client.get(url, content_type='application/json')
         self.assertEqual(response.data['mock']['enabled'], True)
 
         # Disabling a provider
-        url = '/api/service_providers/mock'
+        url = '/api/services/mock'
         body = {'enabled': False}
         response = self.client.put(url, json.dumps(body), content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        url = '/api/service_providers'
+        url = '/api/services'
         response = self.client.get(url, content_type='application/json')
         self.assertEqual(response.data['mock']['enabled'], False)
 
         # Enabling a non-existent provider
-        url = '/api/service_providers/halflife3'
+        url = '/api/services/halflife3'
         body = {'enabled': True}
         response = self.client.put(url, json.dumps(body), content_type='application/json')
         self.assertEqual(response.status_code, 404)
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True)
-class ServicesTest(TestCase):
+class AddonsTest(TestCase):
 
     """Tests creation of services"""
 
@@ -90,7 +90,7 @@ class ServicesTest(TestCase):
         self.app_id = response.data['id']
 
         # Enable the 'mock' service provider
-        url = '/api/service_providers/mock'
+        url = '/api/services/mock'
         body = {'enabled': True}
         response = self.client.put(url, json.dumps(body), content_type='application/json')
         self.assertEqual(response.status_code, 201)
@@ -100,7 +100,7 @@ class ServicesTest(TestCase):
         Test that a user can add, remove and retrieve details about service instances
         """
 
-        # Listing addons requires a call to /api/service_providers so is covered by ServiceProvider
+        # Listing addons requires a call to /api/services so is covered by Service
         # tests.
 
         # Adding an addon
@@ -123,7 +123,7 @@ class ServicesTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
         # Adding a disabled service
-        url = '/api/service_providers/mock'
+        url = '/api/services/mock'
         body = {'enabled': False}
         response = self.client.put(url, json.dumps(body), content_type='application/json')
         self.assertEqual(response.status_code, 200)

@@ -36,19 +36,19 @@ this service in their offering.
 
 ## Registry Endpoints
 
-    GET     /service_providers
+    GET     /services
         retrieve information about all providers available
 
-    POST    /service_providers
+    POST    /services
         attach a provider to the registry
 
-    GET     /service_providers/:provider_name
+    GET     /services/:provider_name
         get information about this specific provider
 
-    PUT     /service_providers/:provider_name
+    PUT     /services/:provider_name
         update configuration for a provider
 
-    DELETE  /service_providers/:provider_name
+    DELETE  /services/:provider_name
         unregister a provider. also unprovisions all services provisioned with this provider
 
     GET     /services
