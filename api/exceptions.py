@@ -20,3 +20,7 @@ class BuildNodeError(APIException):
 
     def __init__(self, detail=None):
         self.detail = detail
+
+
+class ServiceProviderError(Exception):
+    pass
