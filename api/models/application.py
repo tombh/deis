@@ -22,7 +22,7 @@ class App(UuidAuditedModel):
     Application used to service requests on behalf of end-users
     """
 
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='foo_bar_lol_what')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL)
     id = models.SlugField(max_length=64, unique=True)
     formation = models.ForeignKey(Formation)
     containers = JSONField(default='{}', blank=True)

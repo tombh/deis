@@ -38,7 +38,7 @@ class Provider(UuidAuditedModel):
         ('vagrant', 'Local Vagrant VMs'),
     )
 
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='what_the_fuck')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL)
     id = models.SlugField(max_length=64)
     type = models.SlugField(max_length=16, choices=PROVIDERS)
     creds = JSONField(blank=True)
