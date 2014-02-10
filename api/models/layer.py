@@ -34,8 +34,8 @@ class Layer(UuidAuditedModel):
     runtime = models.BooleanField(default=False)
 
     ssh_username = models.CharField(max_length=64, default='ubuntu')
-    ssh_private_key = models.TextField()
-    ssh_public_key = models.TextField()
+    ssh_private_key = models.TextField(blank=True)
+    ssh_public_key = models.TextField(blank=True)
     ssh_port = models.SmallIntegerField(default=22)
 
     # example: {'run_list': [deis::runtime'], 'environment': 'dev'}
@@ -50,9 +50,9 @@ class Layer(UuidAuditedModel):
 
     def save(self, *args, **kwargs):
         # Pre-save
-        if not self.pk:
-            key = RSA.generate(2048)
-            if not self.ssh_private_key and self.ssh_public_key:
+        if self.pk is None:
+            if not self.ssh_private_key and not self.ssh_public_key:
+                key = RSA.generate(2048)
                 self.ssh_private_key = key.exportKey('PEM')
                 self.ssh_public_key = key.exportKey('OpenSSH')
 
