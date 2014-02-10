@@ -6,11 +6,9 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 import json
 
-from Crypto.PublicKey import RSA
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.utils import timezone
 from guardian.shortcuts import assign_perm
 from guardian.shortcuts import get_objects_for_user
 from guardian.shortcuts import get_users_with_perms
@@ -133,24 +131,6 @@ class UserRegistrationView(viewsets.GenericViewSet,
     authentication_classes = (AnonymousAuthentication,)
     permission_classes = (IsAnonymous,)
     serializer_class = serializers.UserSerializer
-
-    def post_save(self, user, created=False):
-        """Seed both `Providers` and `Flavors` after registration."""
-        if created:
-            models.Provider.objects.seed(user)
-            models.Flavor.objects.seed(user)
-
-    def pre_save(self, obj):
-        """Replicate UserManager.create_user functionality."""
-        now = timezone.now()
-        obj.last_login = now
-        obj.date_joined = now
-        obj.is_active = True
-        obj.email = User.objects.normalize_email(obj.email)
-        obj.set_password(obj.password)
-        # Make this first signup an admin / superuser
-        if not User.objects.filter(is_superuser=True).exists():
-            obj.is_superuser = obj.is_staff = True
 
 
 class UserCancellationView(viewsets.GenericViewSet,
@@ -312,16 +292,7 @@ class FormationLayerViewSet(FormationScopedViewSet):
         request._data = request.DATA.copy()
         formation = models.Formation.objects.get(id=self.kwargs['id'])
         request.DATA['formation'] = formation.id
-        if not 'ssh_private_key' in request.DATA and not 'ssh_public_key' in request.DATA:
-            # SECURITY: figure out best way to get keys with proper entropy
-            key = RSA.generate(2048)
-            request.DATA['ssh_private_key'] = key.exportKey('PEM')
-            request.DATA['ssh_public_key'] = key.exportKey('OpenSSH')
         return super(FormationLayerViewSet, self).create(request, **kwargs)
-
-    def post_save(self, layer, created=False, **kwargs):
-        if created:
-            layer.build()
 
     def destroy(self, request, **kwargs):
         layer = self.get_object()

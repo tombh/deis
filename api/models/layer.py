@@ -9,6 +9,7 @@ from api import tasks
 from base import UuidAuditedModel
 from formation import Formation
 from flavor import Flavor
+from Crypto.PublicKey import RSA
 
 
 @python_2_unicode_compatible
@@ -46,6 +47,20 @@ class Layer(UuidAuditedModel):
 
     def __str__(self):
         return self.id
+
+    def save(self, *args, **kwargs):
+        # Pre-save
+        if not self.pk:
+            key = RSA.generate(2048)
+            if not self.ssh_private_key and self.ssh_public_key:
+                self.ssh_private_key = key.exportKey('PEM')
+                self.ssh_public_key = key.exportKey('OpenSSH')
+
+        super(Layer, self).save(*args, **kwargs)
+
+        # Post-save
+        if self.created:
+            self.build()
 
     def flat(self):
         return {'id': self.id,
