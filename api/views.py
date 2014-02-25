@@ -721,3 +721,13 @@ class BuildHookViewSet(BaseHookViewSet):
                 models.Container.objects.scale(app, {'web': 1})
             # publish and converge the application
             app.converge()
+
+class ConfigHookViewSet(BaseHookViewSet):
+    """API hook to retrieve :class:`~api.models.Config`"""
+
+    model = models.Config
+    serializer_class = serializers.ConfigSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        app = get_object_or_404(models.App, id=request.DATA['id'])
+        return Response(app.release_set.latest().config.values, status=status.HTTP_200_OK)

@@ -289,6 +289,10 @@ API Hooks
 
   Create a new :class:`~api.models.Build`.
 
+.. http:get:: /api/hooks/config/(string:id)
+
+  Retrieve a :class:`~api.models.Config` for the given app.
+
 
 Nodes
 =====
@@ -460,6 +464,8 @@ urlpatterns = patterns(
         views.PushHookViewSet.as_view({'post': 'create'})),
     url(r'^hooks/build/?',
         views.BuildHookViewSet.as_view({'post': 'create'})),
+    url(r'^hooks/config/?',
+        views.ConfigHookViewSet.as_view({'get': 'retrieve'})),
     # nodes
     url(r'^nodes/(?P<node>[-_\w]+)/converge/?',
         views.NodeViewSet.as_view({'post': 'converge'})),
